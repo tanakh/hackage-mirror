@@ -1,0 +1,2 @@
+repo = "http://hackage.haskell.org/packages/archive"
+archive = "$(HOME)/.hackage/archive"

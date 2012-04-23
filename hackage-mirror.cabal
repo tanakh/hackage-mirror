@@ -1,0 +1,35 @@
+name:                hackage-mirror
+version:             0.1.0.0
+-- synopsis:            
+-- description:         
+license:             BSD3
+license-file:        LICENSE
+author:              Hideyuki Tanaka
+maintainer:          tanaka.hideyuki@gmail.com
+-- copyright:           
+category:            Network
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable hackage-crawler
+  main-is:             crawler.hs
+  -- other-modules:       
+  build-depends:       base ==4.5.*
+                     , tar ==0.4.*
+                     , bytestring ==0.9.*
+                     , text ==0.11.*
+                     , directory
+                     , configurator
+                     , shelly
+                     , conduit
+                     , http-conduit
+                     , persistent
+                     , persistent-template
+                     , persistent-sqlite
+                     , mtl
+                     , time
+                     , old-locale
+                     , system-filepath
+                     , shakespeare-text
+
+  extra-libraries:     pthread
