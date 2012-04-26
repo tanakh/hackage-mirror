@@ -1,0 +1,10 @@
+/static StaticR Static getStatic
+/auth   AuthR   Auth   getAuth
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+
+/ HomeR GET POST
+
+/packages/archive/log LogR GET
+/packages/archive/00-index.tar.gz ZZIndexR GET

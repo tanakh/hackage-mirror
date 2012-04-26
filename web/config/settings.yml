@@ -1,0 +1,19 @@
+Default: &defaults
+  host: "*4" # any IPv4 host
+  port: 3000
+  approot: "http://192.168.0.70:3000"
+  copyright: Copyright (c) 2012, Hideyuki Tanaka
+  #analytics: UA-YOURCODE
+
+Development:
+  <<: *defaults
+
+Testing:
+  <<: *defaults
+
+Staging:
+  <<: *defaults
+
+Production:
+  approot: "http://haskell.biz"
+  <<: *defaults

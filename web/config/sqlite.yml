@@ -1,0 +1,20 @@
+Default: &defaults
+  database: /home/tanakh/.hackage/hackage-mirror.sqlite3
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: hackage-mirror-web_test.sqlite3
+  <<: *defaults
+
+Staging:
+  database: hackage-mirror-web_staging.sqlite3
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: hackage-mirror-web_production.sqlite3
+  poolsize: 100
+  <<: *defaults
