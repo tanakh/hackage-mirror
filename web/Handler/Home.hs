@@ -26,7 +26,12 @@ appDir :: String
 appDir = "/home/tanakh/.hackage"
 
 indexFile :: String
-indexFile = T.unpack [st|#{appDir}/archive/00-index.tar.gz|]
+indexFile =
+  T.unpack [st|#{appDir}/00-index.tar.gz|]
+
+archiveName :: String -> String -> String
+archiveName name ver =
+  T.unpack [st|#{appDir}/package/#{name}-#{ver}.tar.gz|]
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -83,12 +88,15 @@ makeZZIndex app = forever $ do
   pkgs <- Database.Persist.Store.runPool (persistConfig app) f (connPool app)
   entries <- forM pkgs $ \(Entity _ Package{..}) ->
     E.handle (\E.SomeException{} -> return Nothing) $ do
-      let arcname = archiveName packageName packageVersion
-          cabalname = T.unpack [st|/#{packageName}.cabal|]
+      let arcname =
+            archiveName (T.unpack packageName) (T.unpack packageVersion)
+          cabalname =
+            T.unpack [st|/#{packageName}.cabal|]
           Right tarpath =
             toTarPath False $ T.unpack [st|#{packageName}/#{packageVersion}/#{cabalname}|]
+
       withFile arcname ReadMode $ \h -> do
-        bs <- L.readFile arcname
+        bs <- L.hGetContents h
 
         let loop e = case e of
               Done -> do
@@ -111,11 +119,8 @@ makeZZIndex app = forever $ do
   putStrLn "build 00-index.tar.gz done." >> hFlush stdout
   threadDelay $ 60 * 1000000
 
-archiveName name ver =
-  T.unpack [st|#{appDir}/archive/#{name}/#{ver}/#{name}-#{ver}.tar.gz|]
-
-getPackageR :: Text -> Text -> Text -> Handler (ContentType, Content)
-getPackageR name ver arc = do
+getPackageR :: Text -> Handler (ContentType, Content)
+getPackageR arc = do
   return ( "application/x-gzip"
-         , ContentFile (T.unpack [st|#{appDir}/archive/#{name}/#{ver}/#{arc}|]) Nothing
+         , ContentFile (T.unpack [st|#{appDir}/package/#{arc}|]) Nothing
          )

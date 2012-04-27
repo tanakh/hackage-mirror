@@ -6,6 +6,6 @@
 
 / HomeR GET POST
 
-/packages/archive/log LogR GET
-/packages/archive/00-index.tar.gz ZZIndexR GET
-/packages/archive/#Text/#Text/#Text PackageR GET
+/log LogR GET
+/00-index.tar.gz ZZIndexR GET
+/package/#Text PackageR GET
