@@ -113,3 +113,9 @@ makeZZIndex app = forever $ do
 
 archiveName name ver =
   T.unpack [st|#{appDir}/archive/#{name}/#{ver}/#{name}-#{ver}.tar.gz|]
+
+getPackageR :: Text -> Text -> Text -> Handler (ContentType, Content)
+getPackageR name ver arc = do
+  return ( "application/x-gzip"
+         , ContentFile (T.unpack [st|#{appDir}/archive/#{name}/#{ver}/#{arc}|]) Nothing
+         )
