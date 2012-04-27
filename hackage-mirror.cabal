@@ -1,4 +1,4 @@
-name:              hackage-mirror-web
+name:              hackage-mirror
 version:           0.0.0
 license:           BSD3
 license-file:      LICENSE
@@ -84,14 +84,41 @@ library
                  , tar
                  , zlib
 
-executable         hackage-mirror-web
+executable         hackage-crawler
+    if flag(library-only)
+        Buildable: False
+
+    main-is:           ../crawler.hs
+    hs-source-dirs:    dist
+    build-depends:     base
+                     , mtl
+                     , bytestring
+                     , text
+                     , configurator >= 0.2
+                     , shelly >= 0.6
+                     , system-filepath
+                     , directory
+                     , conduit
+                     , http-conduit
+                     , time
+                     , old-locale
+                     , persistent
+                     , persistent-sqlite
+                     , shakespeare-text
+                     , tar
+                     , zlib
+
+                     , hackage-mirror
+                     , yesod-default
+
+executable         hackage-mirror
     if flag(library-only)
         Buildable: False
 
     main-is:           ../main.hs
     hs-source-dirs:    dist
     build-depends:     base
-                     , hackage-mirror-web
+                     , hackage-mirror
                      , yesod-default
 
 test-suite test
@@ -112,7 +139,7 @@ test-suite test
                        FlexibleContexts
 
     build-depends: base
-                 , hackage-mirror-web
+                 , hackage-mirror
                  , yesod-test
                  , yesod-default
                  , yesod-core

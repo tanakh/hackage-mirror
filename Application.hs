@@ -13,7 +13,6 @@ import Yesod.Default.Main
 import Yesod.Default.Handlers
 import Yesod.Logger (Logger, logBS, toProduction)
 import Network.Wai.Middleware.RequestLogger (logCallback, logCallbackDev)
-import Control.Concurrent
 import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
 import Network.HTTP.Conduit (newManager, def)
@@ -50,9 +49,7 @@ makeFoundation conf setLogger = do
               Database.Persist.Store.applyEnv
     p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
     Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
-    let app = App conf setLogger s p manager dbconf
-    forkIO $ makeZZIndex app
-    return app
+    return $ App conf setLogger s p manager dbconf
 
 -- for yesod devel
 getApplicationDev :: IO (Int, Application)
