@@ -1,5 +1,5 @@
 {-# LANGUAGE PackageImports #-}
-import "hackage-mirror-web" Application (getApplicationDev)
+import "hackage-mirror" Application (getApplicationDev)
 import Network.Wai.Handler.Warp
     (runSettings, defaultSettings, settingsPort)
 import Control.Concurrent (forkIO)

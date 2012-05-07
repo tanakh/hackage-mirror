@@ -94,6 +94,7 @@ executable         hackage-crawler
                      , mtl
                      , bytestring
                      , text
+                     , blaze-builder
                      , configurator >= 0.2
                      , shelly >= 0.6
                      , system-filepath

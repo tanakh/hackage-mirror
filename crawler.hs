@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings, QuasiQuotes, RecordWildCards, DeriveDataTypeable, ViewPatterns #-}
 
+import qualified Blaze.ByteString.Builder as Blaze
+import qualified Blaze.ByteString.Builder.Char.Utf8 as Blaze
 import Codec.Archive.Tar as Tar
 import Codec.Archive.Tar.Entry as Tar
 import Codec.Compression.GZip as GZip
@@ -80,6 +82,8 @@ main' conf = shelly $ do
         `catchany_sh` (\e -> echo_err $ LT.pack $ show e)
 
   makeZZIndex
+  
+  makeLog
 
 makeZZIndex :: ShIO ()
 makeZZIndex = do
@@ -115,6 +119,17 @@ makeZZIndex = do
       tmpPath = indexFile <> "-part"
   liftIO $ L.writeFile tmpPath tarball
   mv (fromString tmpPath) (fromString indexFile)
+
+makeLog :: ShIO ()
+makeLog = do
+  echo "building log..."
+  pkgs <- runDB $ selectList [] [ Asc PackageDate ]
+  liftIO $ L.writeFile (appDir ++ "/log") $
+    Blaze.toLazyByteString $ mconcat $ map (Blaze.fromText . printPkg) pkgs
+  where
+    printPkg (Entity _ Package{..}) =
+      let tm = T.pack $ formatTime defaultTimeLocale "%c" packageDate
+      in T.unwords [tm, packageUploader, packageName, packageVersion] <> "\n"
 
 mvPool = unsafePerformIO $ newEmptyMVar
 {-# NOINLINE mvPool #-}
