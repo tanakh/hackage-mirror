@@ -22,12 +22,32 @@
         <script>
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     <body>
+        <div class="navbar navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container">
+              <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar">
+                <span class="icon-bar">
+                <span class="icon-bar">
+
+              <a class="brand" href="/">HackageDB
+              <div class="nav-collapse">
+                <ul class="nav">
+                  <li class="active"><a href="/">Home</a>
+                  <li><a href="/">Package List</a>
+                  <li><a href="/">What's new</a>
+                  <li><a href="/">Search</a>
+                  <li><a href="/">FAQ</a>
+                  <li><a href="/">About</a>
+
         <div class="container">
             <header>
+
             <div id="main" role="main">
               ^{pageBody pc}
+
             <footer>
-                #{extraCopyright $ appExtra $ settings master}
+                <p>#{extraCopyright $ appExtra $ settings master}
 
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>

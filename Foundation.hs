@@ -96,6 +96,13 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             $(widgetFile "normalize")
             addStylesheet $ StaticR css_bootstrap_css
+            addLucius [lucius|
+body {
+  padding-top: 60px;
+}
+|]
+            addStylesheet $ StaticR css_bootstrap_responsive_css
+            addScript     $ StaticR js_bootstrap_js
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 

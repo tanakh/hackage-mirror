@@ -14,12 +14,9 @@ appDir = "/home/tanakh/.hackage"
 
 getHomeR :: Handler RepHtml
 getHomeR = do
-    let submission = Nothing :: Maybe (FileInfo, Text)
-        handlerName = "getHomeR" :: Text
-    defaultLayout $ do
-        aDomId <- lift newIdent
-        setTitle "Welcome To Yesod!"
-        $(widgetFile "homepage")
+  defaultLayout $ do
+    setTitle "HackageDB mirror - Home"
+    $(widgetFile "homepage")
 
 getLogR :: Handler (ContentType, Content)
 getLogR = do
