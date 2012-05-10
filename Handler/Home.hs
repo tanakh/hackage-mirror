@@ -3,10 +3,7 @@ module Handler.Home where
 
 import Import
 
-import Blaze.ByteString.Builder.Char.Utf8
 import qualified Data.Text as T
-import Data.Time.Format
-import System.Locale
 import Text.Shakespeare.Text
 
 appDir :: String

@@ -29,6 +29,7 @@ library
                      Settings.StaticFiles
                      Settings.Development
                      Handler.Home
+                     Handler.Upload
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -81,8 +82,9 @@ library
                  , time
                  , old-locale
                  , blaze-builder
-                 , tar
-                 , zlib
+                 , wai
+                 , http-types
+                 , conduit
 
 executable         hackage-crawler
     if flag(library-only)
