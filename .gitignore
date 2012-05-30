@@ -1,5 +1,6 @@
 dist
 cabal-dev
+static/tmp/
 *.o
 *.hi
 *.chi
