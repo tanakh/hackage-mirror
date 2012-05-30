@@ -48,8 +48,11 @@ toWaiResponse :: MonadResource m
                  => Response (Source m B.ByteString)
                  -> m Wai.Response
 toWaiResponse resp = do
+  undefined
+  {-
   responseBody resp $$ CB.take (2^(24::Int))
   return $ Wai.responseLBS
     (responseStatus resp)
     (responseHeaders resp)
     body
+  -}

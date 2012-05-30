@@ -17,3 +17,7 @@ Package
   downloaded Bool
   UniqueName name version
   deriving (Show)
+
+Download
+  package Package
+  date UTCTime

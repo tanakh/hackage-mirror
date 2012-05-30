@@ -58,7 +58,7 @@ main = do
 main' :: Config -> IO ()
 main' conf = shelly $ do
   home <- getenv "HOME"
-  let appdir = home </> ".hackage"
+  let appdir = home </> (".hackage" :: Shelly.FilePath)
   mkdir_p appdir
   
   initDB
@@ -72,7 +72,7 @@ main' conf = shelly $ do
   withManager $ \mng -> do
     forM_ (zip [1..] newpacks) $ \(ix, Entity key Package {..}) -> do
       let url = [st|#{repo}/#{packageName}/#{packageVersion}/#{packageName}-#{packageVersion}.tar.gz|]
-          savedir = appdir </> "package"
+          savedir = appdir </> ("package" :: Shelly.FilePath)
           filename = savedir </> FP.fromText [st|#{packageName}-#{packageVersion}.tar.gz|]
       lift $ do
         mkdir_p savedir
