@@ -82,12 +82,16 @@ library
 
                  , time
                  , old-locale
+                 , mtl
                  , blaze-builder
                  , wai
                  , http-types
                  , conduit
                  , regex-tdfa
                  , yesod-paginator
+                 , shelly >= 0.9
+                 , system-filepath
+                 , Cabal
 
 executable         hackage-crawler
     if flag(library-only)
@@ -101,7 +105,7 @@ executable         hackage-crawler
                      , text
                      , blaze-builder
                      , configurator >= 0.2
-                     , shelly >= 0.6
+                     , shelly >= 0.9
                      , system-filepath
                      , directory
                      , conduit

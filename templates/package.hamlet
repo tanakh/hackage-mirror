@@ -1,5 +1,13 @@
-<h1>#{packageName pkg} <small>#{packageVersion pkg}</small>
+<h1>
+  #{packageName pkg}
+  <small> #{packageVersion pkg}
+  &nbsp;
+  <a.btn href=@{PackageR arcName}>download
+
+<p>#{synopsis}
 
 <ul>
   <li>#{show mycnt} Downloads for this version
   <li>#{show totcnt} Downloads for all versions
+
+#{author}

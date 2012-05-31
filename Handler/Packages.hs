@@ -1,14 +1,26 @@
-{-# LANGUAGE TupleSections, OverloadedStrings #-}
+{-# LANGUAGE TupleSections, OverloadedStrings, RecordWildCards #-}
 module Handler.Packages where
 
 import Import
+import Yesod.Paginator
 
 import Control.Monad
-import Data.List
+import Control.Monad.Trans
+import Data.List as L
 import Data.Maybe
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as LT
+import qualified Filesystem.Path as FP
+import Text.Shakespeare.Text
 import Text.Regex.TDFA
-import Yesod.Paginator
+
+import Shelly as S
+
+import Distribution.PackageDescription
+import Distribution.PackageDescription.Parse
+
+appDir :: String
+appDir = "/home/tanakh/.hackage"
 
 getPackagesR :: Handler RepHtml
 getPackagesR = do
@@ -52,9 +64,9 @@ getPackageInfoR pkgFull = do
   
   pkg <- runDB $ selectList [PackageName ==. pkgName] [Desc PackageVersion]
   Entity _ pkg <- maybe notFound return $
-                  find (\(Entity _ val) -> case pkgVersion of
-                           Nothing -> True
-                           Just version -> packageVersion val == version) pkg
+                  L.find (\(Entity _ val) -> case pkgVersion of
+                             Nothing -> True
+                             Just version -> packageVersion val == version) pkg
   
   counts <- runDB $ do
     vers <- selectList [PackageName ==. pkgName] []
@@ -63,7 +75,24 @@ getPackageInfoR pkgFull = do
 
   let mycnt = fromMaybe 0 $ lookup (packageVersion pkg) counts
       totcnt = sum $ map snd counts
+      arcName = packageName pkg <> "-" <> packageVersion pkg <> ".tar.gz"
+
+  cabal <- getCabal (packageName pkg) (packageVersion pkg)
+  GenericPackageDescription {..} <- case parsePackageDescription $ T.unpack cabal of
+    ParseFailed _ -> fail "cabal parse error"
+    ParseOk _ desc -> return desc
+
+  let PackageDescription {..} = packageDescription
 
   defaultLayout $ do
     setTitle . toHtml $ "HackageDB mirror - Package - " <> pkgName
     $(widgetFile "package")
+
+getCabal :: MonadIO m => Text -> Text -> m Text
+getCabal pkgName pkgVersion = shelly $ do
+  withTmpDir $ \dir -> chdir dir $ do
+    run_ "tar" ["-xf", [lt|#{appDir}/package/#{pkgName}-#{pkgVersion}.tar.gz|] ]
+    files <- S.find "."
+    cabalPath <- maybe (fail "no cabal found") return $
+      L.find (\p -> FP.extension p == Just "cabal") $ files
+    LT.toStrict <$> readfile cabalPath
