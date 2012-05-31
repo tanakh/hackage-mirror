@@ -1,0 +1,19 @@
+<h1>All Packages: starting from #{cur}
+
+<p>
+  <div.btn-group>
+    $forall let <- letters
+      <a.btn href=@{PackagesR}?letter=#{let}>#{let}
+
+<h2>
+  Display #{show from} - #{show to} of #{show total} Packages
+
+<table.table.table-striped>
+  $forall Package name version _ _ _ <- pkgs'
+    <tr>
+      <td>
+        <a href=@{PackageInfoR name}>#{name}
+      <td>(#{version})
+
+<div.pagination>
+  ^{paginationWidget}

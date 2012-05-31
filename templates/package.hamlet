@@ -1,0 +1,5 @@
+<h1>#{packageName pkg} <small>#{packageVersion pkg}</small>
+
+<ul>
+  <li>#{show mycnt} Downloads for this version
+  <li>#{show totcnt} Downloads for all versions

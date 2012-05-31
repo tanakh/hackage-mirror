@@ -19,5 +19,5 @@ Package
   deriving (Show)
 
 Download
-  package Package
+  package PackageId
   date UTCTime

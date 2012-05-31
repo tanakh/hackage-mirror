@@ -4,9 +4,12 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/ HomeR GET
-/upload UploadR POST
-
 /log LogR GET
 /00-index.tar.gz ZZIndexR GET
 /package/#Text PackageR GET
+
+/ HomeR GET
+/packages PackagesR GET
+/packages/#Text PackageInfoR GET
+
+/upload UploadR POST

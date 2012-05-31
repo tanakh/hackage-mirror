@@ -34,8 +34,7 @@
               <div class="nav-collapse">
                 <ul class="nav">
                   <li class="active"><a href="/">Home</a>
-                  <li><a href="/">Package List</a>
-                  <li><a href="/">What's new</a>
+                  <li><a href="@{PackagesR}">Package List</a>
                   <li><a href="/">Search</a>
                   <li><a href="/">FAQ</a>
                   <li><a href="/">About</a>

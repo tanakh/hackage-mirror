@@ -30,6 +30,7 @@ library
                      Settings.Development
                      Handler.Home
                      Handler.Upload
+                     Handler.Packages
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -85,6 +86,8 @@ library
                  , wai
                  , http-types
                  , conduit
+                 , regex-tdfa
+                 , yesod-paginator
 
 executable         hackage-crawler
     if flag(library-only)

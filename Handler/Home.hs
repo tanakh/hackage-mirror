@@ -3,7 +3,10 @@ module Handler.Home where
 
 import Import
 
+import Control.Monad
 import qualified Data.Text as T
+import Data.Time.Clock
+import Text.Regex.TDFA
 import Text.Shakespeare.Text
 
 appDir :: String
@@ -27,6 +30,13 @@ getZZIndexR =
 
 getPackageR :: Text -> Handler (ContentType, Content)
 getPackageR arc = do
+  now <- liftIO $ getCurrentTime
+
+  [[_, pkgName, pkgVersion, _]] <- T.unpack arc =~~ ("(.*)-([0-9]+(\\.[0-9]+)+)\\.tar\\.gz$" :: String)
+  runDB $ do
+    Entity pkgKey _ <- getBy404 $ UniqueName (T.pack pkgName) (T.pack pkgVersion)
+    void $ insert $ Download pkgKey now
+
   return ( "application/x-gzip"
          , ContentFile (T.unpack [st|#{appDir}/package/#{arc}|]) Nothing
          )
