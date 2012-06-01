@@ -6,8 +6,14 @@
 
 <p>#{synopsis}
 
-<ul>
-  <li>#{show mycnt} Downloads for this version
-  <li>#{show totcnt} Downloads for all versions
+$if not (null copyright)
+  <p>#{copyright}
 
-#{author}
+<p>
+  <a href="#">#{author}
+
+^{fmtDesc}
+
+<p>#{description}
+
+<p>#{show mycnt} Downloads for this version (#{show totcnt} Downloads for all versions)

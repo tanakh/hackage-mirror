@@ -92,6 +92,7 @@ library
                  , shelly >= 0.9
                  , system-filepath
                  , Cabal
+                 , pandoc
 
 executable         hackage-crawler
     if flag(library-only)

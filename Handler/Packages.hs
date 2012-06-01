@@ -19,6 +19,8 @@ import Shelly as S
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parse
 
+import Text.Pandoc
+
 appDir :: String
 appDir = "/home/tanakh/.hackage"
 
@@ -27,8 +29,8 @@ getPackagesR = do
   (T.head . fromMaybe "A" -> curL) <- lookupGetParam "letter"
   (read . T.unpack . fromMaybe "1" -> page) <- lookupGetParam "p"
 
-  let cur  = T.singleton curL :: Text
-      suc  = T.singleton (succ curL) :: Text
+  let (cur, suc) =
+        (T.singleton curL, T.singleton (succ curL))
   
   let letters = map (\c->[c]) ['A'..'Z']
 
@@ -44,7 +46,7 @@ getPackagesR = do
   
   let total = length pkgs
       ppp = 25
-      from = (page - 1) * ppp
+      from = (page - 1) * ppp + 1
       to   = min total $ from + ppp
   
   (pkgs', paginationWidget) <- paginate ppp pkgs
@@ -83,6 +85,9 @@ getPackageInfoR pkgFull = do
     ParseOk _ desc -> return desc
 
   let PackageDescription {..} = packageDescription
+
+  let doc = readMarkdown defaultParserState description
+      fmtDesc = writeHtml defaultWriterOptions doc
 
   defaultLayout $ do
     setTitle . toHtml $ "HackageDB mirror - Package - " <> pkgName
