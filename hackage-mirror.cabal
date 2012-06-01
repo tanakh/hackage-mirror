@@ -23,11 +23,13 @@ Flag library-only
 library
     exposed-modules: Application
                      Foundation
+                     Haddock
                      Import
                      Model
                      Settings
                      Settings.StaticFiles
                      Settings.Development
+
                      Handler.Home
                      Handler.Upload
                      Handler.Packages
@@ -92,7 +94,8 @@ library
                  , shelly >= 0.9
                  , system-filepath
                  , Cabal
-                 , pandoc
+                 , haddock
+                 , ghc
 
 executable         hackage-crawler
     if flag(library-only)

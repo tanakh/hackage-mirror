@@ -2,6 +2,7 @@
 module Handler.Packages where
 
 import Import
+import Haddock
 import Yesod.Paginator
 
 import Control.Monad
@@ -18,8 +19,6 @@ import Shelly as S
 
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parse
-
-import Text.Pandoc
 
 appDir :: String
 appDir = "/home/tanakh/.hackage"
@@ -85,9 +84,8 @@ getPackageInfoR pkgFull = do
     ParseOk _ desc -> return desc
 
   let PackageDescription {..} = packageDescription
-
-  let doc = readMarkdown defaultParserState description
-      fmtDesc = writeHtml defaultWriterOptions doc
+  
+  desc <- liftIO $ format $ LT.pack description
 
   defaultLayout $ do
     setTitle . toHtml $ "HackageDB mirror - Package - " <> pkgName

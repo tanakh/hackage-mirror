@@ -1,19 +1,23 @@
 <h1>
   #{packageName pkg}
-  <small> #{packageVersion pkg}
+  &nbsp;
+  <small>#{packageVersion pkg}
+  &nbsp;
+  <span.badge.badge-info>#{show license}
   &nbsp;
   <a.btn href=@{PackageR arcName}>download
 
 <p>#{synopsis}
 
+<a href="#">#{author}
+
+<p>#{show mycnt} Downloads for this version (#{show totcnt} Downloads for all versions)
+
+<hr>
+
+^{desc}
+
 $if not (null copyright)
   <p>#{copyright}
 
-<p>
-  <a href="#">#{author}
-
-^{fmtDesc}
-
-<p>#{description}
-
-<p>#{show mycnt} Downloads for this version (#{show totcnt} Downloads for all versions)
+<hr>
