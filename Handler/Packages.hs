@@ -9,18 +9,19 @@ import Control.Monad
 import Control.Monad.Trans
 import Data.List as L
 import Data.Maybe
+import Data.Ord
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Filesystem.Path as FP
+import Text.Blaze.Html.Renderer.String
 import Text.Shakespeare.Text
 import Text.Regex.TDFA
-
-import Shelly as S
 
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parse
 import qualified Distribution.Text as DT
-import Text.Blaze.Html.Renderer.String
+
+import Shelly as S
 
 appDir :: String
 appDir = "/home/tanakh/.hackage"
@@ -43,7 +44,11 @@ getPackagesR = do
                    )
                  )
                  [ Asc PackageName, Asc PackageVersion ]
-    return . map last . groupBy (\a b -> packageName a == packageName b) $ pkgs
+    return
+      . sortBy (comparing $ T.toLower . packageName)
+      . map last
+      . groupBy (\a b -> packageName a == packageName b)
+      $ pkgs
   
   let total = length pkgs
       ppp = 25
@@ -65,12 +70,12 @@ getPackageInfoR pkgFull = do
         | otherwise =
           (T.pack pkgName', Just $ T.pack pkgVersion')
   
-  pkg <- runDB $ selectList [PackageName ==. pkgName] [Desc PackageVersion]
-  Entity _ pkg <- maybe notFound return $
-                  L.find (\(Entity _ val) -> case pkgVersion of
-                             Nothing -> True
-                             Just version -> packageVersion val == version) pkg
-  
+  (map entityVal -> pkgs) <- runDB $ selectList [PackageName ==. pkgName] [Desc PackageVersion]
+  pkg <- maybe notFound return $
+         L.find (\val -> case pkgVersion of
+                    Nothing -> True
+                    Just version -> packageVersion val == version) pkgs
+
   counts <- runDB $ do
     vers <- selectList [PackageName ==. pkgName] []
     forM vers $ \(Entity key val) -> do
@@ -78,7 +83,8 @@ getPackageInfoR pkgFull = do
 
   let mycnt = fromMaybe 0 $ lookup (packageVersion pkg) counts
       totcnt = sum $ map snd counts
-      arcName = packageName pkg <> "-" <> packageVersion pkg <> ".tar.gz"
+      arcName p = packageName p <> "-" <> packageVersion p <> ".tar.gz"
+      infoName p = packageName p <> "-" <> packageVersion p
 
   cabal <- getCabal (packageName pkg) (packageVersion pkg)
   GenericPackageDescription {..} <- case parsePackageDescription $ T.unpack cabal of

@@ -5,12 +5,36 @@
   &nbsp;
   <span.badge.badge-info>#{DT.display license}
   &nbsp;
-  <a.btn href=@{PackageR arcName}>download
-
-<p>#{synopsis}
+  <small>#{synopsis}
+  &nbsp;
+  <small>
+    <a href="#">#{author}
 
 <p>
-  <a href="#">#{author}
+  <div.btn-toolbar>
+    <div.btn-group>
+      <a.btn href=@{PackageR $ arcName pkg}>Download
+      <button.btn.dropdown-toggle data-toggle="dropdown">
+        <span.caret>
+      <ul.dropdown-menu>
+        <li>
+          <a href=@{PackageR $ arcName pkg}>#{packageName pkg}-#{packageVersion pkg}
+        <li.divider>
+        $forall p <- pkgs
+          <li>
+            <a href=@{PackageR $ arcName p}>#{packageName p}-#{packageVersion p}
+
+    <div.btn-group>
+      <a.btn>Other Versions
+      <button.btn.dropdown-toggle data-toggle="dropdown">
+        <span.caret>
+      <ul.dropdown-menu>
+        <li>
+          <a href=@{PackageInfoR $ infoName pkg}>#{packageName pkg}-#{packageVersion pkg}
+        <li.divider>
+        $forall p <- pkgs
+          <li>
+            <a href=@{PackageInfoR $ infoName p}>#{packageName p}-#{packageVersion p}
 
 <p>#{show mycnt} Downloads for this version (#{show totcnt} Downloads for all versions)
 
