@@ -1,26 +1,60 @@
-<h1>hackageDB mirror
+<div.hero-unit>
+  <h1>hackageDB :: Mirror
+  <p>
+    Unofficial mirror of <a href="http://hackage.haskell.org/packages/hackage.html">HackageDB</a>. 
+    GitHub repo is <a href="https://github.com/tanakh/hackage-mirror">here</a>.
 
-<h2>About
-<p>
-  This is unofficial mirror of <a href="">HackageDB</a>.
-  GitHub repo is <a href="https://github.com/tanakh/hackage-mirror">here</a>.
+<div.page-header>
+  <h1>Quick start
 
-<h2>Usage
+<div.row>
+  <div.span6>
+    <h2>Using via cabal-install
+    <p>
+      <ol>
+        <li>Add below line to your ~/.cabal/config file:
+        <pre>remote-repo: #{host}:#{root}
 
-<h3>Using via cabal-install
-<p>
-  <ul>
-    <li>Add your ~/.cabal/config file to
-    <pre>remote-repo: hackage.haskell.biz:http://hackage.haskell.biz
-    <li>cabal update && cabal install &lt;package-name&gt;
+        <li>Use cabal-install as usual:
+        <pre>
+          \$ cabal update && cabal install &lt;package-name&gt;
 
-<h3>Deploying a mirror
-<p>
-  Under constructions.
+  <div.span6>
+    <h2>Deploying a mirror
+    <p>
+      You can deploy your mirror.
+    <p>
+      <button.btn.btn-primary href="#">Detail
 
-<h2>Getting the raw data
+<div.row>
+  <div.span4>
+    <h3>New Packages
+    <table.table.table-striped>
+      $forall pkg <- recent
+        <tr>
+          <td>
+            <a href=@{PackageInfoR $ specName pkg}>#{packageName pkg}
+          <td>#{packageVersion pkg}
+          <td>#{showDate $ packageDate pkg}
 
-<p>
-  <ul>
-    <li><a href="/log">upload log</a>
-    <li><a href="/00-index.tar.gz">tarball of package descriptions</a>
+  <div.span4>
+    <h3>Most Downloaded Today
+    <table.table.table-striped>
+      $forall (pkgName, pkgVer, pkgDl) <- pop
+        <tr>
+          <td>
+            <a href=@{PackageInfoR $ mappend pkgName $ mappend "-" pkgVer}>#{pkgName}
+          <td>#{pkgVer}
+          <td>#{show $ pkgDl}
+
+  <div.span4>
+    <h3>Just Updated
+    <table.table.table-striped>
+      $forall pkg <- updated
+        <tr>
+          <td>
+            <a href=@{PackageInfoR $ specName pkg}>#{packageName pkg}
+          <td>#{packageVersion pkg}
+          <td>#{showDate $ packageDate pkg}
+
+<hr>

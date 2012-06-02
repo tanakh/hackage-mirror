@@ -35,9 +35,9 @@
                 <ul class="nav">
                   <li class="active"><a href="/">Home</a>
                   <li><a href="@{PackagesR}">Package List</a>
-                  <li><a href="/">Search</a>
-                  <li><a href="/">FAQ</a>
-                  <li><a href="/">About</a>
+                  <li><a href="#">Search</a>
+                  <li><a href="#">FAQ</a>
+                  <li><a href="#">About</a>
 
         <div class="container">
             <header>
@@ -46,6 +46,7 @@
               ^{pageBody pc}
 
             <footer>
+              <center>
                 <p>#{extraCopyright $ appExtra $ settings master}
 
         $maybe analytics <- extraAnalytics $ appExtra $ settings master

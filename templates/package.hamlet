@@ -3,21 +3,29 @@
   &nbsp;
   <small>#{packageVersion pkg}
   &nbsp;
-  <span.badge.badge-info>#{show license}
+  <span.badge.badge-info>#{DT.display license}
   &nbsp;
   <a.btn href=@{PackageR arcName}>download
 
 <p>#{synopsis}
 
-<a href="#">#{author}
+<p>
+  <a href="#">#{author}
 
 <p>#{show mycnt} Downloads for this version (#{show totcnt} Downloads for all versions)
 
-<hr>
+<p>
+  <div.accordion #accordionDesc>
+    <div.accordion-group>
+      <div.accordion-heading>
+        <a.accordion-toggle data-toggle="collapse" data-parent="#accordionDesc" href="#collapseDesc">
+          <i.icon-book>
+          &nbsp;Description
+      <div.accordion-body.collapse #collapseDesc style="height: 0px;">
+        <div.accordion-inner>
+          ^{desc}
 
-^{desc}
-
-$if not (null copyright)
-  <p>#{copyright}
+          $if not (null copyright)
+            <p>#{copyright}
 
 <hr>

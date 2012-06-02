@@ -102,7 +102,8 @@ body {
 }
 |]
             addStylesheet $ StaticR css_bootstrap_responsive_css
-            addScript     $ StaticR js_bootstrap_js
+            addScript     $ StaticR js_jquery_1_7_2_min_js
+            addScript     $ StaticR js_bootstrap_min_js
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 

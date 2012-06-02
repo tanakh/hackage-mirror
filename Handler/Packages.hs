@@ -19,6 +19,7 @@ import Shelly as S
 
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parse
+import qualified Distribution.Text as DT
 import Text.Blaze.Html.Renderer.String
 
 appDir :: String
