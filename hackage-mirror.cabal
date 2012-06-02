@@ -30,9 +30,10 @@ library
                      Settings.StaticFiles
                      Settings.Development
 
+                     Handler.Files
                      Handler.Home
-                     Handler.Upload
                      Handler.Packages
+                     Handler.Upload
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
