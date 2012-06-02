@@ -19,6 +19,7 @@ import Shelly as S
 
 import Distribution.PackageDescription
 import Distribution.PackageDescription.Parse
+import Text.Blaze.Html.Renderer.String
 
 appDir :: String
 appDir = "/home/tanakh/.hackage"
@@ -86,6 +87,8 @@ getPackageInfoR pkgFull = do
   let PackageDescription {..} = packageDescription
   
   desc <- liftIO $ format $ LT.pack description
+  
+  liftIO $ print (renderHtml desc)
 
   defaultLayout $ do
     setTitle . toHtml $ "HackageDB mirror - Package - " <> pkgName

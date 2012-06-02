@@ -96,6 +96,8 @@ library
                  , Cabal
                  , haddock
                  , ghc
+                 , ghc-paths
+                 , blaze-html
 
 executable         hackage-crawler
     if flag(library-only)
