@@ -23,12 +23,16 @@ Flag library-only
 library
     exposed-modules: Application
                      Foundation
+                     Haddock
                      Import
                      Model
                      Settings
                      Settings.StaticFiles
                      Settings.Development
+
+                     Handler.Files
                      Handler.Home
+                     Handler.Packages
                      Handler.Upload
 
     if flag(dev) || flag(library-only)
@@ -80,10 +84,20 @@ library
                  , directory
                  , time
                  , old-locale
+                 , mtl
                  , blaze-builder
                  , http-types
                  , conduit
                  , data-default
+                 , regex-tdfa
+                 , yesod-paginator
+                 , shelly
+                 , system-filepath
+                 , Cabal
+                 , haddock
+                 , ghc
+                 , ghc-paths
+                 , blaze-html
 
 executable         hackage-crawler
     if flag(library-only)

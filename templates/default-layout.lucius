@@ -1,0 +1,8 @@
+body {
+    position: relative;
+    position-top: 90px;
+    background-color: #fff;
+    background-image: url(@{StaticR img_grid_18px_masked_png});
+    background-repeat: repeat-x;
+    background-position: 0 40px;
+}
