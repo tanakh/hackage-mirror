@@ -1,110 +1,116 @@
-{-# LANGUAGE OverloadedStrings, QuasiQuotes, RecordWildCards, DeriveDataTypeable, ViewPatterns #-}
+{-# LANGUAGE DeriveDataTypeable   #-}
+{-# LANGUAGE ExtendedDefaultRules #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE QuasiQuotes          #-}
+{-# LANGUAGE RecordWildCards      #-}
+{-# LANGUAGE ViewPatterns         #-}
 
-import qualified Blaze.ByteString.Builder as Blaze
+import qualified Blaze.ByteString.Builder           as Blaze
 import qualified Blaze.ByteString.Builder.Char.Utf8 as Blaze
-import Codec.Archive.Tar as Tar
-import Codec.Archive.Tar.Entry as Tar
-import Codec.Compression.GZip as GZip
-import Control.Applicative
-import Control.Concurrent.MVar
-import Control.Monad
-import Control.Monad.Trans
-import qualified Data.ByteString.Lazy.Char8 as L
-import Data.Configurator as C
-import Data.Configurator.Types
-import Data.Conduit
-import qualified Data.Conduit.Binary as CB
-import Data.List
-import Data.Monoid
-import Data.String
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as LT
-import Data.Time
-import Database.Persist
+import           Codec.Archive.Tar                  as Tar
+import           Codec.Archive.Tar.Entry            as Tar
+import           Codec.Compression.GZip             as GZip
+import           Control.Applicative
+import           Control.Concurrent.MVar
+import           Control.Monad
+import           Control.Monad.Trans
+import qualified Data.ByteString.Lazy.Char8         as L
+import           Data.Conduit
+import           Data.Configurator                  as C
+import           Data.Configurator.Types
+import           Data.List
+import           Data.Monoid
+import qualified Data.Text                          as T
+import qualified Data.Text.Lazy                     as LT
+import           Data.Time
+import           Database.Persist
+import           Database.Persist.Sqlite
 import qualified Database.Persist.Store
-import Database.Persist.Sqlite
-import qualified Filesystem.Path.CurrentOS as FP
-import Network.HTTP.Conduit
-import Shelly
-import System.Environment
-import System.IO
-import System.IO.Unsafe
-import System.Locale
-import Text.Shakespeare.Text
+import qualified Filesystem                         as F
+import qualified Filesystem.Path.CurrentOS          as FP
+import           Network.HTTP.Conduit
+import           Shelly
+import           System.Environment
+import           System.IO
+import           System.IO.Unsafe
+import           System.Locale
+import           Text.Shakespeare.Text
 
-import Yesod.Default.Config
+import           Yesod.Default.Config
 
-import Model
-import Settings
+import           Model
+import           Settings
 
-appDir :: String
-appDir = "/home/tanakh/.hackage"
+default (Integer, LT.Text)
 
-archiveName :: String -> String -> String
-archiveName name ver =
-  T.unpack [st|#{appDir}/package/#{name}-#{ver}.tar.gz|]
+archiveName :: FP.FilePath -> String -> String -> FP.FilePath
+archiveName appDir name ver =
+  appDir </> "package" </> [st|#{name}-#{ver}|] <.> "tar.gz"
 
-indexFile :: String
-indexFile =
-  T.unpack [st|#{appDir}/00-index.tar.gz|]
+indexFile :: FP.FilePath -> FP.FilePath
+indexFile appDir =
+  appDir </> "00-index.tar.gz"
 
 main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [conf] -> main' =<< C.load [Required conf]
+    [conf] -> shelly . main' =<< C.load [Required conf]
     _ -> putStrLn "Usage: hackage-mirror <conf-file>"
 
-main' :: Config -> IO ()
-main' conf = shelly $ do
-  home <- getenv "HOME"
-  let appdir = home </> ".hackage"
-  mkdir_p appdir
-  
+main' :: Config -> Sh ()
+main' conf = do
+  home <- get_env_text "HOME"
+  let appDir = home </> ".hackage"
+  mkdir_p appDir
+
   initDB
-  
+
   repo <- liftIO $ require conf "repo"
   updateMeta $ repo ++ "/log"
 
   newpacks <- whatsnew
+
   echo [lt|download #{show (length newpacks)} new packages|]
 
-  withManager $ \mng -> do
-    forM_ (zip [1..] newpacks) $ \(ix, Entity key Package {..}) -> do
-      let url = [st|#{repo}/#{packageName}/#{packageVersion}/#{packageName}-#{packageVersion}.tar.gz|]
-          savedir = appdir </> "package"
-          filename = savedir </> FP.fromText [st|#{packageName}-#{packageVersion}.tar.gz|]
-      lift $ do
-        mkdir_p savedir
-        echo [lt|[#{show ix}/#{show $ length newpacks}] downloading #{url}...|]
-        download mng (T.unpack url) filename
-        runDB $ update key [ PackageDownloaded =. True ]
-        `catchany_sh` (\e -> echo_err $ LT.pack $ show e)
+  mng <- liftIO $ newManager def
 
-  makeZZIndex
-  
-  makeLog
+  forM_ (zip [1..] newpacks) $ \(ix, Entity key Package {..}) -> do
+    let url = [st|#{repo}/#{packageName}/#{packageVersion}/#{packageName}-#{packageVersion}.tar.gz|]
+        savedir = appDir </> "package"
+        filename = savedir </> FP.fromText [st|#{packageName}-#{packageVersion}.tar.gz|]
 
-makeZZIndex :: ShIO ()
-makeZZIndex = do
+    mkdir_p savedir
+    echo [lt|[#{show ix}/#{show $ length newpacks}] downloading #{url}...|]
+    download mng (T.unpack url) filename
+    runDB $ update key [ PackageDownloaded =. True ]
+    `catchany_sh` (\e -> echo_err $ LT.pack $ show e)
+
+  liftIO $ closeManager mng
+
+  makeZZIndex appDir
+  makeLog appDir
+
+makeZZIndex :: FP.FilePath -> Sh ()
+makeZZIndex appDir = do
   echo "building 00-index.tar.gz..."
   pkgs <- runDB $ selectList [] [ Asc PackageName ]
-  entries <- forM pkgs $ \(Entity _ Package{..}) -> liftIO (do
+  entries <- forM pkgs $ \(Entity _ Package{..}) -> do
     let arcname =
-          archiveName (T.unpack packageName) (T.unpack packageVersion)
+          archiveName appDir (T.unpack packageName) (T.unpack packageVersion)
         cabalname =
           T.unpack [st|/#{packageName}.cabal|]
         Right tarpath =
           toTarPath False $ T.unpack [st|#{packageName}/#{packageVersion}/#{cabalname}|]
 
-    withFile arcname ReadMode $ \h -> do
-      bs <- L.hGetContents h
+    withFileSh arcname ReadMode $ \h -> do
+      bs <- liftIO $ L.hGetContents h
       let loop e = case e of
             Tar.Done -> do
-              hPutStrLn stderr $ arcname ++ ": cabal file not found"
+              echo_err [lt|#{toTextIgnore arcname}: cabal file not found|]
               return Nothing
             Tar.Fail err -> do
-              hPrint stderr err
+              echo_err [lt|#{show err}|]
               return Nothing
             Tar.Next (entry @ Entry { entryContent = NormalFile con _ }) _
                   | cabalname `isSuffixOf` entryPath entry -> do
@@ -113,19 +119,21 @@ makeZZIndex = do
             Next _ next ->
               loop next
       loop $ Tar.read (GZip.decompress bs)
-    ) `catchany_sh` (\e -> inspect e >> return Nothing)
+
+    `catchany_sh` (\e -> inspect e >> return Nothing)
 
   let tarball = GZip.compress $ Tar.write [ e | Just e <- entries ]
-      tmpPath = indexFile <> "-part"
-  liftIO $ L.writeFile tmpPath tarball
-  mv (fromString tmpPath) (fromString indexFile)
+      tmpPath = indexFile appDir <> "-part"
 
-makeLog :: ShIO ()
-makeLog = do
+  withFileSh tmpPath WriteMode $ \h -> liftIO $ L.hPut h tarball
+  mv tmpPath (indexFile appDir)
+
+makeLog :: FP.FilePath -> Sh ()
+makeLog appDir = do
   echo "building log..."
   pkgs <- runDB $ selectList [] [ Asc PackageDate ]
-  liftIO $ L.writeFile (appDir ++ "/log") $
-    Blaze.toLazyByteString $ mconcat $ map (Blaze.fromText . printPkg) pkgs
+  withFileSh (appDir </> "log") WriteMode$ \h -> liftIO $
+    L.hPut h $ Blaze.toLazyByteString $ mconcat $ map (Blaze.fromText . printPkg) pkgs
   where
     printPkg (Entity _ Package{..}) =
       let tm = T.pack $ formatTime defaultTimeLocale "%c" packageDate
@@ -134,8 +142,8 @@ makeLog = do
 mvPool = unsafePerformIO $ newEmptyMVar
 {-# NOINLINE mvPool #-}
 
-initDB :: ShIO ()
-initDB = lift $ do
+initDB :: Sh ()
+initDB = liftIO $ do
   -- initialize DB connection
   dbconf <- withYamlEnvironment "config/sqlite.yml" Development
             Database.Persist.Store.loadConfig >>=
@@ -148,7 +156,7 @@ runDB :: MonadIO m => SqlPersist IO a -> m a
 runDB sql =
   liftIO $ withMVar mvPool $ runSqlPool sql
 
-updateMeta :: String -> ShIO () 
+updateMeta :: String -> Sh ()
 updateMeta url = do
   echo [lt|downloading #{url}...|]
   logs <- L.unpack <$> simpleHttp url
@@ -165,13 +173,19 @@ updateMeta url = do
     return ()
   `catchany_sh` (\e -> echo_err $ LT.pack $ show e)
 
-whatsnew :: ShIO [Entity Package]
+whatsnew :: Sh [Entity Package]
 whatsnew =
   runDB $ selectList [PackageDownloaded ==. False] []
 
-download :: Manager -> String -> FP.FilePath -> ShIO ()
+download :: Manager -> String -> FP.FilePath -> Sh ()
 download mng url pa = do
   liftIO $ runResourceT $ do
     req <- parseUrl url
-    Response {..} <- http req mng
-    responseBody $$ CB.sinkFile (LT.unpack $ toTextIgnore pa)
+    Response {..} <- httpLbs req mng
+    liftIO $ F.withFile pa WriteMode $ \h ->
+      L.hPut h responseBody
+
+withFileSh :: FP.FilePath -> IOMode -> (Handle -> Sh a) -> Sh a
+withFileSh pa mode m = do
+  h <- liftIO $ F.openFile pa mode
+  m h `finally_sh` liftIO (hClose h)

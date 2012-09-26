@@ -12,6 +12,10 @@ import Network.HTTP.Types
 import qualified Network.Wai as Wai
 
 postUploadR :: Handler ()
+postUploadR = undefined
+
+{-
+postUploadR :: Handler ()
 postUploadR = do
   hreq <- liftIO . toHTTPRequest =<< waiRequest
   resp <- liftIO $ withManager $ \mng -> do
@@ -53,3 +57,4 @@ toWaiResponse resp = do
     (responseStatus resp)
     (responseHeaders resp)
     body
+-}

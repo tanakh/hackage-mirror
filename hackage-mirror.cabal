@@ -1,16 +1,16 @@
 name:              hackage-mirror
-version:           0.0.0
+version:           0.1.0
 license:           BSD3
 license-file:      LICENSE
 author:            Hideyuki Tanaka
 maintainer:        Hideyuki Tanaka
-synopsis:          The greatest Yesod web application ever.
-description:       I'm sure you can say something clever here if you try.
+synopsis:          Unofficial mirror of HackageDB
+description:       Unofficial mirror of HackageDB <http://hackage.haskell.org/packages/hackage.html>
 category:          Web
 stability:         Experimental
 cabal-version:     >= 1.8
 build-type:        Simple
-homepage:          http://hackage-mirror-web.yesodweb.com/
+homepage:          http://hackage.haskell.biz/
 
 Flag dev
     Description:   Turn on development settings, like auto-reload templates.
@@ -52,39 +52,38 @@ library
                 RecordWildCards
                 ViewPatterns
 
-    build-depends: base                          >= 4          && < 5
-                 , yesod-platform                >= 1.0        && < 1.1
-                 , yesod                         >= 1.0        && < 1.1
-                 , yesod-core                    >= 1.0        && < 1.1
-                 , yesod-auth                    >= 1.0        && < 1.1
-                 , yesod-static                  >= 1.0        && < 1.1
-                 , yesod-default                 >= 1.0        && < 1.1
-                 , yesod-form                    >= 1.0        && < 1.1
-                 , yesod-test                    >= 0.2        && < 0.3
-                 , clientsession                 >= 0.7.3      && < 0.8
-                 , bytestring                    >= 0.9        && < 0.10
-                 , text                          >= 0.11       && < 0.12
-                 , persistent                    >= 0.9        && < 0.10
-                 , persistent-sqlite     >= 0.9        && < 0.10
+    build-depends: base                          >=4.5
+                 , yesod                         ==1.1.*
+                 , yesod-core
+                 , yesod-auth
+                 , yesod-static
+                 , yesod-default
+                 , yesod-form
+                 , yesod-test                    >=0.3
+                 , clientsession                 >=0.8
+                 , bytestring                    >=0.9 && <0.11
+                 , text                          ==0.11.*
+                 , persistent                    ==1.0.*
+                 , persistent-sqlite             ==1.0.*
                  , template-haskell
-                 , hamlet                        >= 1.0        && < 1.1
-                 , shakespeare-css               >= 1.0        && < 1.1
-                 , shakespeare-js                >= 1.0        && < 1.1
-                 , shakespeare-text              >= 1.0        && < 1.1
-                 , hjsmin                        >= 0.1        && < 0.2
-                 , monad-control                 >= 0.3        && < 0.4
-                 , wai-extra                     >= 1.2        && < 1.3
-                 , yaml                          >= 0.7        && < 0.8
-                 , http-conduit                  >= 1.4        && < 1.5
-                 , directory                     >= 1.1        && < 1.2
-                 , warp                          >= 1.2        && < 1.3
-
+                 , hamlet                        ==1.1.*
+                 , shakespeare-css
+                 , shakespeare-js
+                 , shakespeare-text
+                 , hjsmin                        >=0.1
+                 , monad-control                 >=0.3
+                 , wai                           ==1.3.*
+                 , wai-extra
+                 , warp                          >=1.3
+                 , yaml                          >=0.8
+                 , http-conduit                  ==1.6.*
+                 , directory
                  , time
                  , old-locale
                  , blaze-builder
-                 , wai
                  , http-types
                  , conduit
+                 , data-default
 
 executable         hackage-crawler
     if flag(library-only)
@@ -97,9 +96,10 @@ executable         hackage-crawler
                      , bytestring
                      , text
                      , blaze-builder
-                     , configurator >= 0.2
-                     , shelly >= 0.6
+                     , configurator              >=0.2
+                     , shelly                    >=0.14
                      , system-filepath
+                     , system-fileio
                      , directory
                      , conduit
                      , http-conduit
@@ -141,8 +141,8 @@ test-suite test
                        GeneralizedNewtypeDeriving
                        FlexibleContexts
 
-    build-depends: base
-                 , hackage-mirror
-                 , yesod-test
-                 , yesod-default
-                 , yesod-core
+    build-depends:     base
+                     , hackage-mirror
+                     , yesod-test
+                     , yesod-default
+                     , yesod-core
